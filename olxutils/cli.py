@@ -57,7 +57,12 @@ class CLI(object):
                                     help=("Create a new 'run/NAME' "
                                           "git branch, add changed files, "
                                           "and commit them."))
+        # Add other options you want to include in --force in the help
+        # string here:
         new_run_parser.add_argument('-f', "--force",
+                                    action="store_true",
+                                    help="Same as --replace-existing")
+        new_run_parser.add_argument("--replace-existing",
                                     action="store_true",
                                     help="Replace branch if it exists")
         new_run_parser.add_argument('-p', "--public",
@@ -77,6 +82,10 @@ class CLI(object):
                                          "(YYYY-MM-DD)")
 
         self.opts = parser.parse_args(args)
+
+        # Add other options you want to include in --force here:
+        if self.opts.force:
+            self.opts.replace_existing = True
 
         if self.opts.name == "_base":
             message = "This run name is reserved.  Please choose another one."
@@ -111,7 +120,7 @@ class CLI(object):
     def new_run(self):
         if self.opts.create_branch:
             helper = GitHelper(run=self.opts.name,
-                               delete_existing=self.opts.force)
+                               replace_existing=self.opts.replace_existing)
 
         try:
             if self.opts.create_branch:

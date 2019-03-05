@@ -132,7 +132,7 @@ class GitHelperTestCase(TestCase):
         self.assertFalse(self.helper.branch_exists())
         self.helper.create_branch()
         self.assertTrue(self.helper.branch_exists())
-        self.helper.delete_existing = True
+        self.helper.replace_existing = True
         self.checkout('master')
         self.helper.create_branch()
         self.assertTrue(self.helper.branch_exists())

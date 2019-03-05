@@ -11,10 +11,10 @@ class GitHelper(object):
 
     BRANCH_FORMAT = "run/%s"
 
-    def __init__(self, run, delete_existing=False):
+    def __init__(self, run, replace_existing=False):
         self.run = run
         self.branch = self.BRANCH_FORMAT % run
-        self.delete_existing = delete_existing
+        self.replace_existing = replace_existing
         self.message = ""
 
     def _git_call(self, args):
@@ -34,11 +34,11 @@ class GitHelper(object):
             raise GitHelperException(message.format(self.branch))
 
         if self.branch_exists():
-            if self.delete_existing:
+            if self.replace_existing:
                 self.delete_branch()
             else:
                 message = (
-                    "The target git branch already exists."
+                    "The target git branch {} already exists."
                 )
                 raise GitHelperException(message.format(self.branch))
 

@@ -139,6 +139,21 @@ class GitFullCourseTestCase(FullCourseTestCase):
         self.diff()
         self.assertIn('run/foo', self.repo.branches)
 
+    def test_render_course_duplicate_run_name_replace_existing(self):
+        """Does a duplicate run name succeed if using --replace-existing?"""
+        # First render, should succeed without --replace-existing
+        self.render_course("olx-new-run -b foo 2019-01-01 2020-01-30")
+        # This is necessary because otherwise --replace-existing would
+        # try to delete the checked-out branch, which can't work
+        self.checkout_master()
+        # Second render, should succeed now because we're using -f
+        self.render_course("olx-new-run --replace-existing "
+                           "-b foo 2019-01-01 2019-12-31")
+        # The course with the correct dates should have replaced the
+        # one with the wrong dates, so the diff should now succees
+        self.diff()
+        self.assertIn('run/foo', self.repo.branches)
+
     def test_dirty_working_tree_dir(self):
         """Does a dirty working tree raise a CLI error?"""
         wd = self.repo.working_tree_dir
