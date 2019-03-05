@@ -43,6 +43,9 @@ class GitHelperTestCase(TestCase):
         with os.fdopen(fd, 'w') as file:
             file.write(content)
 
+    def checkout(self, branch):
+        self.repo.git.checkout(branch)
+
     def add_and_commit(self, message):
         self.repo.git.add(os.path.basename(self.tmpfile))
         self.repo.git.commit('-m', message)
@@ -102,6 +105,37 @@ class GitHelperTestCase(TestCase):
         self.assertTrue(self.helper.branch_exists())
         with self.assertRaises(GitHelperException):
             self.helper.create_branch()
+
+    def test_delete_branch(self):
+        """
+        Ensure that deleting a branch succeeds
+        """
+        self.create_file('Hello world')
+        self.add_and_commit('Test 1')
+
+        self.assertFalse(self.helper.branch_exists())
+        self.helper.create_branch()
+        self.assertTrue(self.helper.branch_exists())
+        self.checkout('master')
+        self.helper.delete_branch()
+        self.assertFalse(self.helper.branch_exists())
+
+    def test_delete_existing_branch(self):
+        """
+        Ensure that creating two branches with the same name succeeds if
+        the helper is configured to delete a pre-existing branch of
+        the same name
+        """
+        self.create_file('Hello world')
+        self.add_and_commit('Test 1')
+
+        self.assertFalse(self.helper.branch_exists())
+        self.helper.create_branch()
+        self.assertTrue(self.helper.branch_exists())
+        self.helper.delete_existing = True
+        self.checkout('master')
+        self.helper.create_branch()
+        self.assertTrue(self.helper.branch_exists())
 
     def test_add_to_branch(self):
         """

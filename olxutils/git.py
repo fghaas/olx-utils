@@ -11,9 +11,10 @@ class GitHelper(object):
 
     BRANCH_FORMAT = "run/%s"
 
-    def __init__(self, run):
+    def __init__(self, run, delete_existing=False):
         self.run = run
         self.branch = self.BRANCH_FORMAT % run
+        self.delete_existing = delete_existing
         self.message = ""
 
     def _git_call(self, args):
@@ -33,14 +34,13 @@ class GitHelper(object):
             raise GitHelperException(message.format(self.branch))
 
         if self.branch_exists():
-            message = (
-                "The target git branch already exists.  "
-                "Please delete it and try again.\n"
-                "You can do so with: \n"
-                "\n"
-                "git branch -d {}\n"
-            )
-            raise GitHelperException(message.format(self.branch))
+            if self.delete_existing:
+                self.delete_branch()
+            else:
+                message = (
+                    "The target git branch already exists."
+                )
+                raise GitHelperException(message.format(self.branch))
 
         try:
             self._git_call("checkout -b {}".format(self.branch))
@@ -68,6 +68,13 @@ class GitHelper(object):
             return False
 
         return True
+
+    def delete_branch(self):
+        try:
+            self._git_call("branch -D {}".format(self.branch))
+        except CalledProcessError:
+            raise GitHelperException('Error deleting '
+                                     'branch {}'.format(self.branch))
 
     def add_to_branch(self):
         # Git add the changed files and commit them.
