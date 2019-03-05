@@ -57,6 +57,9 @@ class CLI(object):
                                     help=("Create a new 'run/NAME' "
                                           "git branch, add changed files, "
                                           "and commit them."))
+        new_run_parser.add_argument('-f', "--force",
+                                    action="store_true",
+                                    help="Replace branch if it exists")
         new_run_parser.add_argument('-p', "--public",
                                     action="store_true",
                                     help="Make the course run public")
@@ -107,7 +110,8 @@ class CLI(object):
 
     def new_run(self):
         if self.opts.create_branch:
-            helper = GitHelper(run=self.opts.name)
+            helper = GitHelper(run=self.opts.name,
+                               delete_existing=self.opts.force)
 
         try:
             if self.opts.create_branch:

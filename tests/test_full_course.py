@@ -109,8 +109,33 @@ class GitFullCourseTestCase(FullCourseTestCase):
                    cwd=self.tmpdir,
                    shell=True)
 
+    def checkout_master(self):
+        self.repo.git.checkout('master')
+
     def test_render_course_matching_git(self):
         self.render_course("olx-new-run -b foo 2019-01-01 2019-12-31")
+        self.diff()
+        self.assertIn('run/foo', self.repo.branches)
+
+    def test_render_course_duplicate_run_name(self):
+        """Does a duplicate run name raise a CLI error?"""
+        # First render, should succeed
+        self.render_course("olx-new-run -b foo 2019-01-01 2019-12-31")
+        with self.assertRaises(CLIException):
+            # Second render, should fail because we're not using --force
+            self.render_course("olx-new-run -b foo 2019-01-01 2019-12-31")
+
+    def test_render_course_duplicate_run_name_force(self):
+        """Does a duplicate run name succeed if using -f/--force?"""
+        # First render, should succeed without -f
+        self.render_course("olx-new-run -b foo 2019-01-01 2020-01-30")
+        # This is necessary because otherwise -f would try to delete
+        # the checked-out branch, which can't work
+        self.checkout_master()
+        # Second render, should succeed now because we're using -f
+        self.render_course("olx-new-run -f -b foo 2019-01-01 2019-12-31")
+        # The course with the correct dates should have replaced the
+        # one with the wrong dates, so the diff should now succees
         self.diff()
         self.assertIn('run/foo', self.repo.branches)
 
