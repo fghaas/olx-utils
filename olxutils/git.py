@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from subprocess import check_call, CalledProcessError
+from subprocess import check_call, check_output, CalledProcessError
 
 
 class GitHelperException(Exception):
@@ -16,8 +16,11 @@ class GitHelper(object):
         self.branch = self.BRANCH_FORMAT % run
         self.message = ""
 
-    def _git_command(self, args):
+    def _git_call(self, args):
         check_call("git %s" % args, shell=True)
+
+    def _git_output(self, args):
+        return check_output("git %s" % args, shell=True)
 
     def create_branch(self):
         if self.branch_exists():
@@ -31,14 +34,14 @@ class GitHelper(object):
             raise GitHelperException(message.format(self.branch))
 
         try:
-            self._git_command("checkout -b {}".format(self.branch))
+            self._git_call("checkout -b {}".format(self.branch))
         except CalledProcessError:
             raise GitHelperException('Error creating '
                                      'branch {}'.format(self.branch))
 
     def branch_exists(self):
         try:
-            self._git_command("rev-parse --verify {}".format(self.branch))
+            self._git_call("rev-parse --verify {}".format(self.branch))
         except CalledProcessError:
             return False
 
@@ -47,8 +50,8 @@ class GitHelper(object):
     def add_to_branch(self):
         # Git add the changed files and commit them.
         try:
-            self._git_command("add .")
-            self._git_command("commit -m 'New run: {}'".format(self.run))
+            self._git_call("add .")
+            self._git_call("commit -m 'New run: {}'".format(self.run))
         except CalledProcessError:
             raise GitHelperException('Error committing new run.')
         self.message = (
