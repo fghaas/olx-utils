@@ -23,6 +23,15 @@ class GitHelper(object):
         return check_output("git %s" % args, shell=True)
 
     def create_branch(self):
+        if self.is_dirty():
+            message = (
+                "The working directory contains untracked files "
+                "or uncommitted changes.\n"
+                "Please commit, stash, or delete them "
+                "and try again.\n"
+            )
+            raise GitHelperException(message.format(self.branch))
+
         if self.branch_exists():
             message = (
                 "The target git branch already exists.  "
@@ -38,6 +47,19 @@ class GitHelper(object):
         except CalledProcessError:
             raise GitHelperException('Error creating '
                                      'branch {}'.format(self.branch))
+
+    def is_dirty(self):
+        # If 'git status --porcelain' produces any output, we've
+        # got a dirty working directory. If its output is empty,
+        # the working directory is clean.
+        try:
+            if self._git_output("status --porcelain"):
+                return True
+        except CalledProcessError:
+            message = "Unable to run git status"
+            raise GitHelperException(message)
+
+        return False
 
     def branch_exists(self):
         try:

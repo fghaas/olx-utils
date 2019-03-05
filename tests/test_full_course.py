@@ -114,5 +114,15 @@ class GitFullCourseTestCase(FullCourseTestCase):
         self.diff()
         self.assertIn('run/foo', self.repo.branches)
 
+    def test_dirty_working_tree_dir(self):
+        """Does a dirty working tree raise a CLI error?"""
+        wd = self.repo.working_tree_dir
+        with tempfile.NamedTemporaryFile(mode='w',
+                                         dir=wd) as f:
+            f.write('foo')
+            f.flush()
+            with self.assertRaises(CLIException):
+                self.render_course("olx-new-run -b foo 2019-01-01 2019-12-31")
+
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
