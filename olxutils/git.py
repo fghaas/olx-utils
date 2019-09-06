@@ -79,4 +79,4 @@ class GitHelper(object):
             "\n"
             "$ git checkout {s.old_branch}\n"
         ).format(s=self)
-        logging.warn(message)
+        logging.warning(message)
