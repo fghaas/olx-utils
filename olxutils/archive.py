@@ -11,7 +11,9 @@ class ArchiveHelper(object):
     """Helper class to facilitate the creation of course archives to be
     imported into Open edX Studio."""
 
-    def __init__(self, root_directory, base_name):
+    def __init__(self,
+                 root_directory,
+                 base_name):
         # The only format currently supported by Open edX Studio is
         # gztar, i.e. a gzip-compressed tarball. If that ever changes,
         # we can easily support others (via shutil.make_archive()).
@@ -37,11 +39,16 @@ class ArchiveHelper(object):
             # apparently not essential:
             'assets',
             'conditional',
+            'combinedopenended',
             'course',
+            'discussion',
             'drafts',
             'markdown',
+            'peergrading',
             'tabs',
             'vertical',
+            'video',
+            'videoalpha'
         ]
         files = [
             # apparently essential:
