@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 import textwrap
 import markdown2
-import codecs
 
 from os import environ
 from swiftclient.utils import generate_temp_url
@@ -46,7 +45,7 @@ class OLXHelpers(object):
     @classmethod
     def markdown_file(cls, filename, extras=None):
         content = ''
-        with codecs.open(filename, 'r', encoding="utf-8") as f:
+        with open(filename, 'r', encoding="utf-8") as f:
             content = f.read()
         return cls.markdown(content,
                             extras=extras)

@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import os
 import sys
 import fnmatch
-import codecs
 
 from mako.template import Template
 from mako.lookup import TemplateLookup
@@ -121,5 +120,5 @@ class OLXTemplates(object):
             if os.path.islink(filename):
                 os.unlink(filename)
 
-            with codecs.open(filename, 'w', 'utf-8') as f:
+            with open(filename, 'w', encoding='utf-8') as f:
                 f.write(rendered)
