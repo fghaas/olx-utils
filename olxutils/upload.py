@@ -76,13 +76,13 @@ class UploadHelper(object):
         request_headers = {
             'Authorization': 'JWT %s' % self.token,
         }
-        request_files = {
-            'course_data': (self.archive,
-                            open(self.archive, 'rb')),
-        }
-        r = requests.post(self.upload_url,
-                          files=request_files,
-                          headers=request_headers)
+        with open(self.archive, 'rb') as archive_file:
+            request_files = {
+                'course_data': (self.archive, archive_file),
+            }
+            r = requests.post(self.upload_url,
+                              files=request_files,
+                              headers=request_headers)
 
         logging.debug("Request took %s to complete" % r.elapsed)
         # Raise an HTTPError if we didn't get an OK response
